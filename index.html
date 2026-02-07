@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>For My Favorite Person</title>
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+      .font-script { font-family: 'Dancing Script', cursive; }
+      .font-sans { font-family: 'Montserrat', sans-serif; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; padding: 0; overflow-x: hidden; }
+      
+      @keyframes float {
+        0% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+        10% { opacity: 0.8; }
+        90% { opacity: 0.8; }
+        100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+      }
+      .heart-particle {
+        position: absolute;
+        color: rgba(255, 182, 193, 0.6);
+        pointer-events: none;
+        z-index: 15;
+        animation: float 15s linear infinite;
+      }
+      .heart-clip {
+        clip-path: url(#heart-clip);
+      }
+    </style>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.2.4",
+        "react-dom/client": "https://esm.sh/react-dom@19.2.4/client"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Heart SVG Mask Definition -->
+    <svg width="0" height="0" style="position: absolute;">
+      <defs>
+        <clipPath id="heart-clip" clipPathUnits="objectBoundingBox">
+          <path d="M 0.5, 0.94 C 0.5, 0.94 0.01, 0.61 0.01, 0.35 C 0.01, 0.16 0.16, 0.01 0.35, 0.01 C 0.44, 0.01 0.5, 0.07 0.5, 0.07 C 0.5, 0.07 0.56, 0.01 0.65, 0.01 C 0.84, 0.01 0.99, 0.16 0.99, 0.35 C 0.99, 0.61 0.5, 0.94 0.5, 0.94 Z" />
+        </clipPath>
+      </defs>
+    </svg>
+
+    <!-- React Application Logic -->
+    <script type="text/babel" data-presets="react,typescript" data-type="module">
+      import React, { useState, useEffect, useRef, useMemo } from 'react';
+      import ReactDOM from 'react-dom/client';
+
+      // --- Constants ---
+      const RELATIONSHIP_START_DATE = new Date('2024-08-14T00:00:00');
+
+      const MILESTONES = [
+        {
+          title: "The Nervous Phase",
+          description: "Everything was brand new. Every text made my heart skip a beat, and I was so worried about saying the right thing. I already knew you were special.",
+          image: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?q=80&w=1000&auto=format&fit=crop"
+        },
+        {
+          title: "Sunset Strolls",
+          description: "One of those perfect evenings where the sky matched our mood. I remember thinking I never wanted the walk to end.",
+          image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=1000&auto=format&fit=crop",
+          video: "https://assets.mixkit.co/videos/preview/mixkit-couple-walking-on-the-beach-at-sunset-1522-large.mp4"
+        },
+        {
+          title: "Learning Your World",
+          description: "Our first long conversations late into the night. Finding out all your favorite things and realizing how much we have in common.",
+          image: "https://images.unsplash.com/photo-1516589174184-c68d8e5fecb1?q=80&w=1000&auto=format&fit=crop"
+        },
+        {
+          title: "The Comfortable Phase",
+          description: "Silence became sweet instead of awkward. We started our own little inside jokes and 'our' places. I felt home whenever I was with you.",
+          image: "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=1000&auto=format&fit=crop"
+        },
+        {
+          title: "Coffee Dates",
+          description: "Even the simplest moments like grabbing a latte become the highlight of my week because I'm with you.",
+          image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1000&auto=format&fit=crop",
+          video: "https://assets.mixkit.co/videos/preview/mixkit-coffee-being-poured-into-a-cup-on-a-table-922-large.mp4"
+        },
+        {
+          title: "Building Dreams",
+          description: "Talking about the future and realizing you were in all of my plans. You became my best friend and my biggest supporter.",
+          image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1000&auto=format&fit=crop"
+        },
+        {
+          title: "Adventures Together",
+          description: "Exploring new places and making memories that I'll hold onto forever. Every trip is better with you.",
+          image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1000&auto=format&fit=crop",
+          video: "https://assets.mixkit.co/videos/preview/mixkit-young-couple-walking-through-a-green-field-4819-large.mp4"
+        },
+        {
+          title: "Stronger Together",
+          description: "Navigating the little challenges of life. Every hurdle we crossed only made us tighter. I realized there's no one else I'd rather have by my side.",
+          image: "https://images.unsplash.com/photo-1522673607200-164883eecd0c?q=80&w=1000&auto=format&fit=crop"
+        },
+        {
+          title: "Quiet Nights In",
+          description: "Sometimes the best dates are just us, a movie, and way too much popcorn. Pure peace.",
+          image: "https://images.unsplash.com/photo-1521112287111-18e715d03da0?q=80&w=1000&auto=format&fit=crop"
+        },
+        {
+          title: "The Look in Your Eyes",
+          description: "That specific look you give me when you're laughing. It's my favorite thing in the whole world.",
+          image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=1000&auto=format&fit=crop",
+          video: "https://assets.mixkit.co/videos/preview/mixkit-couple-in-love-enjoying-the-sunset-on-the-beach-2603-large.mp4"
+        },
+        {
+          title: "I Can't Imagine Life Without You",
+          description: "Six months in, and it feels like a lifetime of joy. You are my person, my heart, and my everything. Happy Valentine's Day, beautiful.",
+          image: "https://images.unsplash.com/photo-1516589174184-c68d8e5fecb1?q=80&w=1000&auto=format&fit=crop"
+        }
+      ];
+
+      // --- Components ---
+
+      const ScrollReveal = ({ children, delay = 0, className = "" }) => {
+        const [isVisible, setIsVisible] = useState(false);
+        const domRef = useRef(null);
+
+        useEffect(() => {
+          const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                setTimeout(() => setIsVisible(true), delay);
+              }
+            });
+          }, { threshold: 0.1 });
+
+          const current = domRef.current;
+          if (current) observer.observe(current);
+
+          return () => {
+            if (current) observer.unobserve(current);
+          };
+        }, [delay]);
+
+        return (
+          <div
+            ref={domRef}
+            className={`transition-all duration-1000 transform ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            } ${className}`}
+          >
+            {children}
+          </div>
+        );
+      };
+
+      const Hero = () => {
+        const hearts = useMemo(() => [...Array(15)].map((_, i) => ({
+          left: `${Math.random() * 100}%`,
+          delay: `${Math.random() * 15}s`,
+          size: `${Math.random() * 1.5 + 0.5}rem`,
+        })), []);
+
+        return (
+          <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden py-16 md:py-24">
+            <div 
+              className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: "url('https://images.unsplash.com/photo-1501183007986-d0d080b147f9?q=80&w=2000&auto=format&fit=crop')" }}
+            />
+            <div className="absolute inset-0 z-10 bg-gradient-to-b from-pink-900/60 via-purple-900/50 to-indigo-900/70" />
+
+            {hearts.map((heart, i) => (
+              <div key={i} className="heart-particle font-sans" style={{ left: heart.left, animationDelay: heart.delay, fontSize: heart.size, bottom: '-10%' }}>❤️</div>
+            ))}
+
+            <div className="relative z-20 text-center px-4 max-w-5xl">
+              <ScrollReveal>
+                <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto mb-10 group">
+                  <div className="w-full h-full bg-pink-100/30 backdrop-blur-md p-2 heart-clip">
+                    <div className="w-full h-full bg-pink-500/20 flex items-center justify-center overflow-hidden heart-clip">
+                      <img 
+                        src="https://images.unsplash.com/photo-1516589174184-c68d8e5fecb1?q=80&w=800&auto=format&fit=crop" 
+                        alt="My Girl"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 -z-10 bg-pink-400/40 blur-3xl rounded-full scale-75 animate-pulse" />
+                </div>
+
+                <h1 className="font-sans font-bold text-4xl md:text-7xl text-white mb-12 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] leading-tight uppercase tracking-tighter">
+                  To the love of my life
+                </h1>
+              </ScrollReveal>
+              
+              <ScrollReveal delay={400}>
+                <div className="bg-white/10 backdrop-blur-lg p-8 md:p-12 rounded-[3rem] border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                  <p className="font-sans text-lg md:text-xl text-pink-50 font-light leading-relaxed md:leading-[2.2] text-left md:text-center italic">
+                    Six months ago, on August 14th, my world got a little brighter and a lot more beautiful. 
+                    What started as a first date has turned into 184 days of laughter, late-night talks, 
+                    and realizing that every 'favorite' thing I have now involves you. Looking back at these photos, 
+                    I don't just see memories; I see the exact moments I realized how much you mean to me. 
+                    This is our story so far, and I wouldn’t change a single second of it.
+                    <br /><br />
+                    If you told me back in August that in just half a year you’d become my favorite person, 
+                    my safest place, and my best friend, I’m not sure I would have believed how lucky I’d get. 
+                    You’ve turned ordinary days into adventures and made 4,416 hours feel like a heartbeat. 
+                    Thank you for being the girl who makes everything better just by being in the room. 
+                    This site is a small piece of my heart, dedicated to you. I love you so much. 
+                    <span className="block mt-6 font-sans font-semibold text-2xl md:text-3xl text-white not-italic uppercase tracking-widest">Today, Tomorrow and Forever.</span>
+                  </p>
+                </div>
+              </ScrollReveal>
+              
+              <ScrollReveal delay={800} className="mt-16">
+                <div className="animate-bounce inline-block">
+                  <svg className="w-12 h-12 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  </svg>
+                </div>
+              </ScrollReveal>
+            </div>
+          </section>
+        );
+      };
+
+      const Stats = () => {
+        const diffDays = 184;
+        const diffWeeks = Math.floor(diffDays / 7);
+        const diffHours = 4416;
+
+        const statItems = [
+          { label: "Days Together", value: diffDays.toLocaleString() },
+          { label: "Weeks Loved", value: diffWeeks.toLocaleString() },
+          { label: "Hours of Magic", value: diffHours.toLocaleString() },
+        ];
+
+        return (
+          <section className="py-24 px-4">
+            <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+              {statItems.map((stat, idx) => (
+                <ScrollReveal key={idx} delay={idx * 150}>
+                  <div className="bg-white/10 backdrop-blur-md p-10 rounded-[2.5rem] border border-white/20 text-center hover:scale-105 transition-transform">
+                    <h3 className="font-sans text-pink-100 text-sm uppercase tracking-widest mb-2">{stat.label}</h3>
+                    <p className="font-script text-5xl text-white font-bold">{stat.value}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </section>
+        );
+      };
+
+      const Timeline = () => {
+        return (
+          <section className="py-24 px-4 overflow-hidden">
+            <div className="max-w-4xl mx-auto">
+              <ScrollReveal>
+                <h2 className="font-sans font-bold text-4xl md:text-5xl text-center text-white mb-16 uppercase tracking-tight">Moments We've Shared</h2>
+              </ScrollReveal>
+
+              <div className="relative ml-0 md:ml-auto md:mr-auto">
+                {MILESTONES.map((milestone, idx) => (
+                  <div key={idx} className="mb-20 last:mb-0 relative">
+                    <ScrollReveal delay={100} className={`md:w-[48%] ${idx % 2 === 0 ? 'md:mr-auto' : 'md:ml-auto md:text-right'}`}>
+                      <div className="bg-white/5 backdrop-blur-sm p-6 rounded-[2rem] border border-white/10 overflow-hidden group hover:bg-white/10 transition-colors shadow-xl">
+                        <div className="relative h-64 mb-6 overflow-hidden rounded-[1.5rem] bg-black/20">
+                          {milestone.video ? (
+                            <video autoPlay loop muted playsInline className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                              <source src={milestone.video} type="video/mp4" />
+                              <img src={milestone.image} alt={milestone.title} className="w-full h-full object-cover" />
+                            </video>
+                          ) : (
+                            <img src={milestone.image} alt={milestone.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+                        </div>
+                        <h3 className="font-sans font-bold text-2xl text-pink-200 mb-3 uppercase tracking-tight">{milestone.title}</h3>
+                        <p className="font-sans text-pink-50/80 leading-relaxed text-sm">{milestone.description}</p>
+                      </div>
+                    </ScrollReveal>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      const LiveMoment = () => {
+        return (
+          <section className="py-24 px-4 flex flex-col items-center">
+            <ScrollReveal>
+              <h2 className="font-sans font-bold text-4xl md:text-5xl text-white mb-12 text-center uppercase tracking-tight">My Favorite View</h2>
+            </ScrollReveal>
+            <ScrollReveal delay={200}>
+              <div className="bg-white p-4 md:p-6 pb-12 shadow-2xl rounded-sm transform -rotate-2 hover:rotate-0 transition-transform duration-500">
+                <div className="relative overflow-hidden w-full max-w-[500px] aspect-[4/5] bg-gray-200">
+                  <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-couple-walking-on-the-beach-at-sunset-1522-large.mp4" type="video/mp4" />
+                  </video>
+                  <div className="absolute inset-0 pointer-events-none border-4 border-white/10" />
+                </div>
+                <div className="mt-6 text-center">
+                  <p className="font-sans font-bold text-2xl text-gray-800 uppercase">You & Me Always ❤️</p>
+                  <p className="font-sans text-xs text-gray-400 mt-2 uppercase tracking-widest">Captured Forever</p>
+                </div>
+              </div>
+            </ScrollReveal>
+          </section>
+        );
+      };
+
+      const Proposal = () => {
+        const [noPosition, setNoPosition] = useState({ x: 0, y: 0 });
+        const [showLove, setShowLove] = useState(false);
+
+        const moveNoButton = () => {
+          const x = Math.random() * (window.innerWidth < 768 ? 100 : 300) - 150;
+          const y = Math.random() * (window.innerWidth < 768 ? 100 : 300) - 150;
+          setNoPosition({ x, y });
+        };
+
+        if (showLove) {
+          return (
+            <section className="py-24 px-4 flex flex-col items-center justify-center min-h-[60vh] text-center">
+              <ScrollReveal>
+                <div className="text-8xl mb-8 animate-bounce">💖</div>
+                <h2 className="font-sans font-bold text-5xl md:text-7xl text-white mb-4 uppercase tracking-tighter">I Knew You'd Say Yes!</h2>
+                <p className="font-sans text-xl text-pink-100 max-w-lg mx-auto">
+                  You just made me the luckiest person alive. I love you more than words can ever express. 
+                  Can't wait for our Valentine's date!
+                </p>
+                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="mt-12 px-8 py-3 bg-white/20 border border-white/40 text-white rounded-full font-sans hover:bg-white/30 transition-all uppercase tracking-widest text-sm">Read Our Story Again</button>
+              </ScrollReveal>
+            </section>
+          );
+        }
+
+        return (
+          <section className="py-24 px-4 flex flex-col items-center text-center">
+            <ScrollReveal>
+              <h2 className="font-sans font-bold text-4xl md:text-8xl text-white mb-12 uppercase tracking-tighter">Will You Be My Valentine?</h2>
+            </ScrollReveal>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8 mt-8 min-h-[200px] w-full max-w-md mx-auto relative">
+              <ScrollReveal delay={200}>
+                <button onClick={() => setShowLove(true)} className="px-12 py-4 bg-pink-500 hover:bg-pink-400 text-white text-2xl font-bold rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 uppercase tracking-widest">Yes!</button>
+              </ScrollReveal>
+              <button onMouseEnter={moveNoButton} onClick={moveNoButton} style={{ transform: `translate(${noPosition.x}px, ${noPosition.y}px)`, transition: 'all 0.2s ease-out' }} className="px-10 py-3 bg-white/10 text-white/60 border border-white/20 rounded-full font-sans cursor-pointer whitespace-nowrap uppercase tracking-widest text-xs">No</button>
+            </div>
+          </section>
+        );
+      };
+
+      const App = () => {
+        return (
+          <div className="min-h-screen font-sans selection:bg-pink-500 selection:text-white">
+            <div className="bg-gradient-to-b from-[#FFB7C5] via-[#D071BB] via-[#9C27B0] via-[#7B1FA2] to-[#4B0082]">
+              <Hero />
+              <div className="max-w-7xl mx-auto">
+                <Stats />
+                <Timeline />
+                <LiveMoment />
+                <Proposal />
+              </div>
+              <footer className="py-12 text-center text-white/30 text-xs tracking-widest uppercase border-t border-white/5">
+                Made with Love &bull; Valentine's Day 2024
+              </footer>
+            </div>
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
