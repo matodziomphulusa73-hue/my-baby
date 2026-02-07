@@ -49,14 +49,8 @@
       }
     </style>
 
-    <script type="importmap">
-    {
-      "imports": {
-        "react": "https://esm.sh/react@19.2.4",
-        "react-dom/client": "https://esm.sh/react-dom@19.2.4/client"
-      }
-    }
-    </script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   </head>
   <body>
     <div id="root"></div>
@@ -71,9 +65,8 @@
     </svg>
 
     <!-- React Application Logic -->
-    <script type="text/babel" data-presets="react,typescript" data-type="module">
-      import React, { useState, useEffect, useRef, useMemo } from 'react';
-      import ReactDOM from 'react-dom/client';
+    <script type="text/babel" data-presets="react,typescript">
+    const { useState, useEffect, useRef, useMemo } = React;
 
       // --- Constants ---
       const MILESTONES = [
@@ -237,8 +230,8 @@
               <ScrollReveal delay={400}>
                 <div className="bg-white/10 backdrop-blur-lg p-8 md:p-12 rounded-[3rem] border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
                   <p className="font-sans text-lg md:text-xl text-pink-50 font-light leading-relaxed md:leading-[2.2] text-left md:text-center italic">
-                    Six months ago, on August 14th , you waled into my life and my world got a little brighter and a lot more beautiful. 
-                    What started as a instagram dm and us chatting about our favourite music and a whole bunch of other cute things  has turned into 184 days of laughter, late-night talks, 
+                    Six months ago, on August 14th , you walked into my life and my world got a little brighter and a lot more beautiful. 
+                    What started as a random instagram dm and us chatting about our favourite music and a whole bunch of other cute things  has turned into 184 days of laughter, late-night talks, 
                     and realizing that every 'favorite' thing I have now involves you. Looking back at these photos, 
                     I don't just see memories; I see the exact moments I realized how much you mean to me. 
                     This is our story so far, and I wouldn’t change a single second of it.
