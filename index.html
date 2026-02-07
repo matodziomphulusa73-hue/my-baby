@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>For My Favorite Person</title>
+    <title>For Eneilwe</title>
     <!-- Dependencies -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -32,6 +32,20 @@
       }
       .heart-clip {
         clip-path: url(#heart-clip);
+      }
+      .fade-enter-active {
+        animation: fadeIn 1s ease-out forwards;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.98); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .music-note {
+        animation: noteFloat 3s ease-in-out infinite;
+      }
+      @keyframes noteFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
       }
     </style>
 
@@ -62,8 +76,6 @@
       import ReactDOM from 'react-dom/client';
 
       // --- Constants ---
-      const RELATIONSHIP_START_DATE = new Date('2024-08-14T00:00:00');
-
       const MILESTONES = [
         {
           title: "The Nervous Phase",
@@ -161,6 +173,28 @@
         );
       };
 
+      const LandingPage = ({ onEnter }) => {
+        return (
+          <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-[#4B0082] via-[#7B1FA2] to-[#D071BB] text-center px-4">
+            <div className="animate-pulse mb-8">
+              <span className="text-6xl">💌</span>
+            </div>
+            <h1 className="font-script text-6xl md:text-8xl text-white mb-6 drop-shadow-lg">
+              To Keneilwe Molebatsi
+            </h1>
+            <p className="font-sans text-pink-100 text-lg md:text-xl mb-12 max-w-md mx-auto italic opacity-80">
+              A little something for the girl who means the world to me :).
+            </p>
+            <button 
+              onClick={onEnter}
+              className="px-10 py-4 bg-white/20 border-2 border-white/50 text-white font-sans font-bold text-lg rounded-full hover:bg-white/40 hover:scale-110 transition-all duration-500 uppercase tracking-widest shadow-2xl backdrop-blur-sm"
+            >
+              Click to read more
+            </button>
+          </div>
+        );
+      };
+
       const Hero = () => {
         const hearts = useMemo(() => [...Array(15)].map((_, i) => ({
           left: `${Math.random() * 100}%`,
@@ -203,8 +237,8 @@
               <ScrollReveal delay={400}>
                 <div className="bg-white/10 backdrop-blur-lg p-8 md:p-12 rounded-[3rem] border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
                   <p className="font-sans text-lg md:text-xl text-pink-50 font-light leading-relaxed md:leading-[2.2] text-left md:text-center italic">
-                    Six months ago, on August 14th, my world got a little brighter and a lot more beautiful. 
-                    What started as a first date has turned into 184 days of laughter, late-night talks, 
+                    Six months ago, on August 14th , you waled into my life and my world got a little brighter and a lot more beautiful. 
+                    What started as a instagram dm and us chatting about our favourite music and a whole bunch of other cute things  has turned into 184 days of laughter, late-night talks, 
                     and realizing that every 'favorite' thing I have now involves you. Looking back at these photos, 
                     I don't just see memories; I see the exact moments I realized how much you mean to me. 
                     This is our story so far, and I wouldn’t change a single second of it.
@@ -360,20 +394,72 @@
       };
 
       const App = () => {
+        const [showMainContent, setShowMainContent] = useState(false);
+        const [isMuted, setIsMuted] = useState(false);
+        const audioRef = useRef(null);
+
+        const handleEnter = () => {
+          setShowMainContent(true);
+          if (audioRef.current) {
+            audioRef.current.play().catch(e => console.log("Autoplay blocked, user interaction needed", e));
+          }
+        };
+
+        const toggleMute = () => {
+          if (audioRef.current) {
+            audioRef.current.muted = !isMuted;
+            setIsMuted(!isMuted);
+          }
+        };
+
+        useEffect(() => {
+          if (showMainContent) {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+          }
+        }, [showMainContent]);
+
         return (
           <div className="min-h-screen font-sans selection:bg-pink-500 selection:text-white">
-            <div className="bg-gradient-to-b from-[#FFB7C5] via-[#D071BB] via-[#9C27B0] via-[#7B1FA2] to-[#4B0082]">
-              <Hero />
-              <div className="max-w-7xl mx-auto">
-                <Stats />
-                <Timeline />
-                <LiveMoment />
-                <Proposal />
+            {/* Audio Element: Una Rams - Amazulu */}
+            {/* Note: In a real environment, replace this URL with the exact Una Rams MP3 file link */}
+            <audio 
+              ref={audioRef} 
+              loop 
+              src="music/amazulu.mp3" 
+              style={{ display: 'none' }}
+            />
+
+            {!showMainContent ? (
+              <LandingPage onEnter={handleEnter} />
+            ) : (
+              <div className="bg-gradient-to-b from-[#FFB7C5] via-[#D071BB] via-[#9C27B0] via-[#7B1FA2] to-[#4B0082] fade-enter-active">
+                {/* Floating Music Toggle */}
+                <button 
+                  onClick={toggleMute}
+                  className="fixed bottom-6 right-6 z-50 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-full shadow-2xl group transition-all hover:bg-white/20"
+                >
+                  {isMuted ? (
+                    <span className="text-xl">🔇</span>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl music-note">🎵</span>
+                      <span className="text-[10px] text-white/50 uppercase tracking-widest font-bold group-hover:block hidden">Una Rams - Amazulu</span>
+                    </div>
+                  )}
+                </button>
+
+                <Hero />
+                <div className="max-w-7xl mx-auto">
+                  <Stats />
+                  <Timeline />
+                  <LiveMoment />
+                  <Proposal />
+                </div>
+                <footer className="py-12 text-center text-white/30 text-xs tracking-widest uppercase border-t border-white/5">
+                  Made with Love for Keneilwe ; By Omphulusa<3.
+                </footer>
               </div>
-              <footer className="py-12 text-center text-white/30 text-xs tracking-widest uppercase border-t border-white/5">
-                Made with Love &bull; Valentine's Day 2024
-              </footer>
-            </div>
+            )}
           </div>
         );
       };
